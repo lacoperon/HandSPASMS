@@ -44,6 +44,7 @@ import java.net.SocketException;
 public class SimpleWebServer implements Runnable {
 
     private static final String TAG = "SimpleWebServer";
+    private final MainActivity cl;
 
     /**
      * The port number we listen to
@@ -68,9 +69,10 @@ public class SimpleWebServer implements Runnable {
     /**
      * WebServer constructor.
      */
-    public SimpleWebServer(int port, AssetManager assets) {
+    public SimpleWebServer(int port, AssetManager assets, MainActivity cl_) {
         mPort = port;
         mAssets = assets;
+        cl = cl_;
     }
 
     /**
@@ -126,29 +128,30 @@ public class SimpleWebServer implements Runnable {
 
             // Read HTTP headers and parse out the route.
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String full_message = "";
             String line;
             while (!TextUtils.isEmpty(line = reader.readLine())) {
-                full_message = full_message + line;
-                /*
                 if (line.startsWith("GET /")) {
-                    int start = line.indexOf('/') + 1;
-                    int end = line.indexOf(' ', start);
-                    route = line.substring(start, end);
-                    //break;
+                    // Back to regular spaces
+                    line = line.replace("%20", " ");
 
+                    // Phone number starts 1 after the first equals sign
+                    int phone_number_start = line.indexOf("=") + 1;
+                    // Phone number ends at the first ampersand
+                    int phone_number_end = line.indexOf("&") - 1;
+                    // Message starts 1 after the second equal sign
+                    int message_start_idx = line.indexOf("=", phone_number_end) + 1;
+
+                    // Extract fields from line
+                    String phone_number = line.substring(phone_number_start, phone_number_end);
+                    String message = line.substring(message_start_idx);
+
+                    cl.sendSMSMessage(phone_number, message);
+                    break;
                 }
-<<<<<<< HEAD
-                Log.d("handspasms",line);
-=======
-                */
-//>>>>>>> origin/master
             }
-
 
             // Output stream that we send the response to
             output = new PrintStream(socket.getOutputStream());
-
 
             // Send out the content.
             output.println("HTTP/1.0 200 OK");

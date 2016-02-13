@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        SimpleWebServer sws = new SimpleWebServer(1881, null);
+        SimpleWebServer sws = new SimpleWebServer(1881, null, this);
         sws.start();
         sws.run();
 
@@ -78,12 +78,11 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-
     /*
     sendSMSMessage sends String message to String phoneNumber
      */
     //timestamp added to test it
-    protected void sendSMSMessage(String message, String phoneNumber) {
+    public void sendSMSMessage(String message, String phoneNumber) {
 
         Log.i("Send SMS", "");
         messageEvent msgEvent = new messageEvent(phoneNumber, message);
@@ -102,7 +101,7 @@ public class MainActivity extends Activity {
                 throw new noSIMCardException();
             } else if (!isRegistered) {
                 throw new notConnectedToNetworkException();
-            } else if (message == ("")) {
+            } else if (message.equals("")) {
                 throw new nullMessageException();
             }
 
