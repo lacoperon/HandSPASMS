@@ -1,8 +1,12 @@
 package com.handspasms.handspasms;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.app.Activity;
+import android.telephony.CellSignalStrength;
+import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,8 +29,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        sendSMSMessage("", "9173400996");
-        sendSMSMessage("", "9173400996");
+        sendSMSMessage("hello", "9173400996");
+        sendSMSMessage("hello", "9173400996");
 
     }
 
@@ -61,14 +65,13 @@ public class MainActivity extends Activity {
         Log.i("Send SMS", "");
         messageEvent msgEvent = new messageEvent(phoneNumber, message);
         String timestamp = msgEvent.getTimestamp();
-        message = message + timestamp;
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
             addToList("To: " + phoneNumber + "\nStatus: Sent" + "\n" + timestamp);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
             addToList("To: " + phoneNumber + "\nStatus: Fail" + "\n" + timestamp);
             e.printStackTrace();
         }

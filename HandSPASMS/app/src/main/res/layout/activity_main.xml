@@ -9,7 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.handspasms.handspasms.MainActivity"
     android:focusable="true"
-    android:background="#ffffff"
+    android:background="#e5e9f4"
     android:id="@+id/logArea">
 
     <ListView
