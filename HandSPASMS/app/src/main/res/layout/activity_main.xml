@@ -7,7 +7,9 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.handspasms.handspasms.MainActivity">
+    tools:context="com.handspasms.handspasms.MainActivity"
+    android:focusable="true"
+    android:background="#ffffff">
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -16,33 +18,7 @@
         android:text="Send Text"
         android:id="@+id/smsButton"
         android:onClick="smsButtonCallback"
-        android:layout_below="@+id/messageOutput"
-        android:layout_alignParentStart="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="phone"
-        android:ems="10"
-        android:id="@+id/phoneOutput"
-        android:layout_below="@+id/phoneID"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Phone Number"
-        android:layout_alignStart="@+id/phoneOutput"
-        android:id="@+id/phoneID" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/messageOutput"
-        android:layout_below="@+id/phoneOutput"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
