@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.app.Activity;
 import android.telephony.CellInfo;
+import android.telephony.CellInfoGsm;
 import android.telephony.CellSignalStrength;
 import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
@@ -65,8 +66,14 @@ public class MainActivity extends Activity {
         messageEvent msgEvent = new messageEvent(phoneNumber, message);
         String timestamp = msgEvent.getTimestamp();
         TelephonyManager  tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        //CellInfo cf = (CellInfo)tm.getAllCellInfo().get(0);
+        //Check for cell reception and sms preparedness
+       // boolean isRegistered = cf.isRegistered(); //IE is connected to the network
+        boolean isSMSCapable = tm.isSmsCapable(); //IE is technically capable of sending a SMS
+        boolean isActiveSim = (tm.getSimState() == 5); //IE has an active SIM card
+
         try {
-            if(!tm.isSmsCapable()) {
+            if(!isSMSCapable | !isActiveSim) {
                 throw new Exception();
             }
             SmsManager smsManager = SmsManager.getDefault();
