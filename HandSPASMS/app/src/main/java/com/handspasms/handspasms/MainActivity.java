@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -36,7 +37,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        sendSMSMessage("", "9173400996");
+
+        SimpleWebServer sws = new SimpleWebServer(1980, null);
+
+        sendSMSMessage("hello", "9173400996");
     }
 
     @Override
