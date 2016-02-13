@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.telephony.CellInfo;
 import android.telephony.CellInfoGsm;
+import android.telephony.CellLocation;
 import android.telephony.CellSignalStrength;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -15,7 +18,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -31,7 +36,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        sendSMSMessage("Hi","9173400996");
+        sendSMSMessage("", "9173400996");
     }
 
     @Override
@@ -62,24 +67,56 @@ public class MainActivity extends Activity {
      */
     //timestamp added to test it
     protected void sendSMSMessage(String message, String phoneNumber) {
+
         Log.i("Send SMS", "");
         messageEvent msgEvent = new messageEvent(phoneNumber, message);
         String timestamp = msgEvent.getTimestamp();
         TelephonyManager  tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        //CellInfo cf = (CellInfo)tm.getAllCellInfo().get(0);
+        CellInfo cf = tm.getAllCellInfo().get(0);
         //Check for cell reception and sms preparedness
-       // boolean isRegistered = cf.isRegistered(); //IE is connected to the network
+        boolean isRegistered = cf.isRegistered(); //IE is connected to the network
         boolean isSMSCapable = tm.isSmsCapable(); //IE is technically capable of sending a SMS
         boolean isActiveSim = (tm.getSimState() == 5); //IE has an active SIM card
 
         try {
-            if(!isSMSCapable | !isActiveSim) {
+            if(!isSMSCapable) {
+                throw new notSMSCapableException();
+            } else if(!isActiveSim) {
+                throw new noSIMCardException();
+            } else if (!isRegistered) {
+                throw new notConnectedToNetworkException();
+            } else if (message == ("")) {
+                throw new nullMessageException();
+            }
+
+            if(!isSMSCapable | !isActiveSim | !isRegistered) {
                 throw new Exception();
             }
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
             addToList("To: " + phoneNumber + "\nStatus: Sent" + "\n" + timestamp);
+
+        } catch (notSMSCapableException e) {
+
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (Not SMS Capable)" + "\nTime:" + timestamp);
+            e.printStackTrace();
+
+        } catch (noSIMCardException e) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (SIM Card Not Active)" + "\nTime:" + timestamp);
+            e.printStackTrace();
+
+        } catch (notConnectedToNetworkException e) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (No Cellular Network)" + "\nTime:" + timestamp);
+            e.printStackTrace();
+
+        } catch (nullMessageException e) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (Null Message)" + "\nTime:" + timestamp);
+            e.printStackTrace();
 
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
@@ -98,6 +135,10 @@ public class MainActivity extends Activity {
     public void addToList(String newThing) {
         stringLog.push(newThing);
         adapter.notifyDataSetChanged();
+    }
+
+    public String getIpAddress() {
+        return "";
     }
 
 
