@@ -19,7 +19,7 @@
 
         <ListView
             android:layout_width="wrap_content"
-            android:layout_height="411dp"
+            android:layout_height="223dp"
             android:id="@+id/logView"
             android:layout_alignParentStart="false"
             android:layout_gravity="center_horizontal|bottom" />
@@ -41,7 +41,7 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="HandSPASM"
             android:id="@+id/textView"
-            android:layout_gravity="left|top"
+            android:layout_gravity="center_horizontal|top"
             android:textSize="40dp" />
 
     </FrameLayout>

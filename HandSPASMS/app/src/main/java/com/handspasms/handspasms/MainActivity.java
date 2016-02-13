@@ -3,6 +3,7 @@ package com.handspasms.handspasms;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Activity;
+import android.telephony.CellInfo;
 import android.telephony.CellSignalStrength;
 import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
@@ -29,9 +30,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        sendSMSMessage("hello", "9173400996");
-        sendSMSMessage("hello", "9173400996");
-
+        sendSMSMessage("Hi","9173400996");
     }
 
     @Override
@@ -65,14 +64,19 @@ public class MainActivity extends Activity {
         Log.i("Send SMS", "");
         messageEvent msgEvent = new messageEvent(phoneNumber, message);
         String timestamp = msgEvent.getTimestamp();
+        TelephonyManager  tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         try {
+            if(!tm.isSmsCapable()) {
+                throw new Exception();
+            }
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
             addToList("To: " + phoneNumber + "\nStatus: Sent" + "\n" + timestamp);
+
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail" + "\n" + timestamp);
+            addToList("To: " + phoneNumber + "\nStatus: Fail" + "\nTime:" + timestamp);
             e.printStackTrace();
         }
     }

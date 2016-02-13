@@ -21,6 +21,11 @@ public class messageEvent {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int min  = c.get(Calendar.MINUTE);
         int sec  = c.get(Calendar.SECOND);
+        String sSec;
+        String sMin;
+        //Conversion to time format
+        if(sec < 10) {sSec = "0" + sec;} else {sSec = (""+ sec);}
+        if(min < 10) {sMin = "0" + min;} else {sMin = (""+ min);}
         String format = hour+":"+min+":"+sec+" on "+day+"/"+month+"/"+year;
         return (format);
     }
