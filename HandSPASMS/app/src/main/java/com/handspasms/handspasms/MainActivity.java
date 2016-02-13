@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
         instantiateList();
 
         SimpleWebServer sws = new SimpleWebServer(1980, null);
+        sws.start();
+        sws.run();
 
         sendSMSMessage("hello", "9173400996");
     }
