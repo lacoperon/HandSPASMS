@@ -37,11 +37,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        SimpleWebServer sws = new SimpleWebServer(1881, null, this);
+        SimpleWebServer sws = new SimpleWebServer(1888, null, this);
         sws.start();
         sws.run();
 
-        sendSMSMessage("hello", "9173400996");
+        // sendSMSMessage("hello", "9173400996");
 
         ImageView hand = (ImageView) findViewById(R.id.hand);
         hand.setOnLongClickListener(new View.OnLongClickListener() {

@@ -126,11 +126,15 @@ public class SimpleWebServer implements Runnable {
         try {
             String route = null;
 
+            String full_line = "";
+
             // Read HTTP headers and parse out the route.
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String line;
             while (!TextUtils.isEmpty(line = reader.readLine())) {
                 if (line.startsWith("GET /")) {
+                    full_line = full_line + line;
+
                     // Back to regular spaces
                     line = line.replace("%20", " ");
 
@@ -145,10 +149,12 @@ public class SimpleWebServer implements Runnable {
                     String phone_number = line.substring(phone_number_start, phone_number_end);
                     String message = line.substring(message_start_idx);
 
-                    cl.sendSMSMessage(phone_number, message);
-                    break;
+                    cl.sendSMSMessage(message, phone_number);
+                    // break;
                 }
             }
+
+            Log.i("HTTP REQUEST: ", full_line);
 
             // Output stream that we send the response to
             output = new PrintStream(socket.getOutputStream());
