@@ -2,13 +2,17 @@ package com.handspasms.handspasms;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        sendSMSMessage();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
@@ -33,5 +37,19 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void sendSMSMessage() {
+        Log.i("Send SMS", "");
+        String phoneNo = "+19173400996";
+        String message = "Hello!";
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNo, null, message, null, null);
+            Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "SMS fail'd, please try again.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 }
