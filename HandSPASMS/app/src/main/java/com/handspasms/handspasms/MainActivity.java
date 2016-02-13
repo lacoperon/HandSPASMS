@@ -10,9 +10,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Stack;
+
 public class MainActivity extends Activity {
-    String phone;
-    String msg;
+    Stack<messageEvent> msgList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +47,11 @@ public class MainActivity extends Activity {
     /*
     sendSMSMessage sends String message to String phoneNumber
      */
-    protected void sendSMSMessage(String message, String phoneNumber) {
+    //timestamp added to test it
+    protected void sendSMSMessage(String message, String phoneNumber, String timestamp) {
         Log.i("Send SMS", "");
         try {
+            message = message + "\n" + timestamp;
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
@@ -62,12 +66,16 @@ public class MainActivity extends Activity {
     }
 
     public void smsButtonCallback(View view) {
+        //Placeholder phone and message, to be replaced by server output
+        String phone = "9173400996";
         String message = constructSMS("John Cena", "Doctor Mario", "6/6/6", "13pm " );
-        EditText phoneView = (EditText) findViewById(R.id.phoneOutput);
-        phone = phoneView.getText().toString();
-        EditText msgView   = (EditText) findViewById(R.id.messageOutput);
-        msg   = msgView.getText().toString();
-        sendSMSMessage(msg, phone);
+        messageEvent msgEvent = new messageEvent(phone, message);
+        String timestamp = msgEvent.getTimestamp();
+        try {sendSMSMessage(message, phone, timestamp);}
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "SMS fail'd, please try again.", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
 
     }
 
