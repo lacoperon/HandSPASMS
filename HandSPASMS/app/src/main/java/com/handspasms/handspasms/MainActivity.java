@@ -78,6 +78,10 @@ public class MainActivity extends Activity {
         }
 
     }
+    /* Google cloud Messaging credentials
+        Server API key: AIzaSyC1pHP-j6JDF8QNS6dFy3CT5Twg2Y8YMlI
+        Sender ID: 1063206121019
+     */
 
 
 
