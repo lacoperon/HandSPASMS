@@ -9,10 +9,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-
+    String phone = "+19173400996";
+    String message = "Hello!";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        sendSMSMessage();
+        sendSMSMessage(message, phone);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
@@ -38,14 +39,14 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    protected void sendSMSMessage() {
+    /*
+    sendSMSMessage sends String message to String phoneNumber
+     */
+    protected void sendSMSMessage(String message, String phoneNumber) {
         Log.i("Send SMS", "");
-        String phoneNo = "+19173400996";
-        String message = "Hello!";
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNo, null, message, null, null);
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "SMS sent.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "SMS fail'd, please try again.", Toast.LENGTH_LONG).show();
