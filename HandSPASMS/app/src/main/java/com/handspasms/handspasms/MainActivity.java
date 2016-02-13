@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     String phone = "+19173400996";
-    String message = "Hello!";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        String message = constructSMS("John Cena", "Doctor Mario", "6/6/6", "13pm " );
         sendSMSMessage(message, phone);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
     /*
     sendSMSMessage sends String message to String phoneNumber
      */
@@ -52,5 +54,9 @@ public class MainActivity extends Activity {
             Toast.makeText(getApplicationContext(), "SMS fail'd, please try again.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+    }
+
+    protected String constructSMS(String patientName, String doctorName, String date, String time) {
+        return ("Hello " + patientName + ", \n You have an appointment at " + time + " on " + date + " with " + doctorName);
     }
 }
