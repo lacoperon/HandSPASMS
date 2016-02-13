@@ -29,16 +29,15 @@ import java.util.Stack;
 
 public class MainActivity extends Activity {
     Stack<messageEvent> msgList;
-    Stack<String> stringLog;
-    ArrayAdapter<String> adapter;
+    static Stack<String> stringLog;
+    static ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-
-        SimpleWebServer sws = new SimpleWebServer(1980, null);
+        SimpleWebServer sws = new SimpleWebServer(1899, null);
         sws.start();
         sws.run();
 
@@ -138,7 +137,7 @@ public class MainActivity extends Activity {
         myList.setAdapter(adapter);
     }
 
-    public void addToList(String newThing) {
+    public static void addToList(String newThing) {
         stringLog.push(newThing);
         adapter.notifyDataSetChanged();
     }
