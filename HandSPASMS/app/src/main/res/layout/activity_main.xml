@@ -9,16 +9,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.handspasms.handspasms.MainActivity"
     android:focusable="true"
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:id="@+id/logArea">
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
+    <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Send Text"
-        android:id="@+id/smsButton"
-        android:onClick="smsButtonCallback"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:id="@+id/logView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

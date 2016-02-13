@@ -10,6 +10,7 @@ public class messageEvent {
     String phone;
     String message;
     String timestamp;
+    String sendStatus;
 
 
     public static String getNow() {
@@ -28,11 +29,14 @@ public class messageEvent {
         this.phone = phone;
         this.message = message;
         this.timestamp = getNow();
-        boolean sendStatus = false;
     }
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    public String toString() {
+        return this.getPhone() +  this.getNow() + this.getStatus();
     }
 
 
@@ -44,6 +48,15 @@ public class messageEvent {
         return message;
     }
 
+    public void messageSent() {
+        String sendStatus = "Send Failed";
+    }
 
+    public void messageFailed() {
+        String sendStatus = "Send Failed";
+    }
 
+    public String getStatus() {
+        return sendStatus;
+    }
 }
