@@ -22,7 +22,7 @@ public class messageEvent {
         int min  = c.get(Calendar.MINUTE);
         int sec  = c.get(Calendar.SECOND);
         String format = hour+":"+min+":"+sec+" on "+day+"/"+month+"/"+year;
-        return ("Message 'sent' at " + format);
+        return (format);
     }
 
     messageEvent(String phone, String message) {
@@ -49,7 +49,7 @@ public class messageEvent {
     }
 
     public void messageSent() {
-        String sendStatus = "Send Failed";
+        String sendStatus = "Send Success";
     }
 
     public void messageFailed() {

@@ -25,8 +25,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        addToList("hi");
-        sendSMSMessage("hi", "9173400996");
+        sendSMSMessage("", "9173400996");
 
     }
 
@@ -59,46 +58,19 @@ public class MainActivity extends Activity {
     //timestamp added to test it
     protected void sendSMSMessage(String message, String phoneNumber) {
         Log.i("Send SMS", "");
+        messageEvent msgEvent = new messageEvent(phoneNumber, message);
+        String timestamp = msgEvent.getTimestamp();
+        message = message + timestamp;
         try {
-            messageEvent msgEvent = new messageEvent(phoneNumber, message);
-            String timestamp = msgEvent.getTimestamp();
-            message = message + "\n" + timestamp;
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
-            msgList.peek().messageSent();
-            addToList(msgList.peek().toString());
+            addToList(phoneNumber + " " + message);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "SMS fail'd, please try again.", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-            addToList(msgList.peek().toString());
-        }
-    }
-
-//NEED TO FIX METHOD, BREAKS
-    public void sendText(String phone, String message) {
-        //Phone and message to be inputted from GMS
-        messageEvent msgEvent = new messageEvent(phone, message);
-        String timestamp = msgEvent.getTimestamp();
-        msgList.push(msgEvent);
-        try {
-
-            sendSMSMessage(message, phone, timestamp);
-            //Appends message status to show that the message succeeded in sending.
-            Toast.makeText(getApplicationContext(), "SMS sent!", Toast.LENGTH_LONG).show();
-            msgList.peek().messageSent();
-            addToList(msgList.peek().toString());
-
-            
-        }
-        catch (Exception e) {
-            //Appends message status to show that the message failed to send.
-            Toast.makeText(getApplicationContext(), "SMS failed!", Toast.LENGTH_LONG).show();
-            msgList.peek().messageFailed();
-            addToList(msgList.peek().toString());
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList(phoneNumber + " " + message);
             e.printStackTrace();
         }
-
     }
 
     public void instantiateList() {
@@ -118,9 +90,6 @@ public class MainActivity extends Activity {
         Server API key: AIzaSyC1pHP-j6JDF8QNS6dFy3CT5Twg2Y8YMlI
         Sender ID: 1063206121019
      */
-
-
-
 
 
 }
