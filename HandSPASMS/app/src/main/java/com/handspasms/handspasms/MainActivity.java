@@ -37,11 +37,12 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        SimpleWebServer sws = new SimpleWebServer(1899, null);
+        SimpleWebServer sws = new SimpleWebServer(1881, null);
         sws.start();
         sws.run();
 
         sendSMSMessage("hello", "9173400996");
+
     }
 
     @Override

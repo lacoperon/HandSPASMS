@@ -126,30 +126,20 @@ public class SimpleWebServer implements Runnable {
                     int start = line.indexOf('/') + 1;
                     int end = line.indexOf(' ', start);
                     route = line.substring(start, end);
-                    break;
+                    //break;
+
                 }
+                Log.d("handspasms",line);
             }
 
             // Output stream that we send the response to
             output = new PrintStream(socket.getOutputStream());
 
-            // Prepare the content to send.
-            if (null == route) {
-                writeServerError(output);
-                return;
-            }
-            byte[] bytes = loadContent(route);
-            if (null == bytes) {
-                writeServerError(output);
-                return;
-            }
 
             // Send out the content.
             output.println("HTTP/1.0 200 OK");
             output.println("Content-Type: " + detectMimeType(route));
-            output.println("Content-Length: " + bytes.length);
             output.println();
-            output.write(bytes);
             output.flush();
         } finally {
             if (null != output) {
