@@ -16,9 +16,15 @@
 
 package com.handspasms.handspasms;
 
+import android.content.Context;
 import android.content.res.AssetManager;
+import android.telephony.CellInfo;
+import android.telephony.SmsManager;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
+
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -120,15 +126,20 @@ public class SimpleWebServer implements Runnable {
 
             // Read HTTP headers and parse out the route.
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String full_message = "";
             String line;
             while (!TextUtils.isEmpty(line = reader.readLine())) {
+                full_message = full_message + line;
+                /*
                 if (line.startsWith("GET /")) {
                     int start = line.indexOf('/') + 1;
                     int end = line.indexOf(' ', start);
                     route = line.substring(start, end);
                     break;
                 }
+                */
             }
+
 
             // Output stream that we send the response to
             output = new PrintStream(socket.getOutputStream());
