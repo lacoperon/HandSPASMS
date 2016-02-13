@@ -43,6 +43,17 @@ public class MainActivity extends Activity {
 
         sendSMSMessage("hello", "9173400996");
 
+        ImageView hand = (ImageView) findViewById(R.id.hand);
+        hand.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(getApplicationContext(), "Created by Brendan Fahey, Dan Meyer, " +
+                        "David Stern, Wesley Wei, & Elliot Williams   Created at ID Hack 2016"
+                        , Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+
     }
 
     @Override

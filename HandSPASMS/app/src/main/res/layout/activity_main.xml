@@ -27,19 +27,20 @@
         <ImageView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:id="@+id/imageView"
+            android:id="@+id/hand"
             android:layout_gravity="right|top"
             android:src="@mipmap/hand_logos"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="360dp"
             android:layout_alignParentTop="true"
-            android:adjustViewBounds="true" />
+            android:adjustViewBounds="true"
+            android:longClickable="true" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="HandSPASM"
+            android:text="HandSPASMS"
             android:id="@+id/textView"
             android:layout_gravity="left|top"
             android:textSize="40dp" />

@@ -142,7 +142,7 @@ public class SimpleWebServer implements Runnable {
                 Log.d("handspasms",line);
 =======
                 */
->>>>>>> origin/master
+//>>>>>>> origin/master
             }
 
 
