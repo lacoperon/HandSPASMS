@@ -10,13 +10,13 @@ public class messageEvent {
     String phone;
     String message;
     String timestamp;
-    String sendStatus;
+    String sendStatus = "Bloop";
 
 
     public static String getNow() {
         Calendar c = Calendar.getInstance();
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1; //Because month should not, but is, indexed at 0
         int day = c.get(Calendar.DATE);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int min  = c.get(Calendar.MINUTE);

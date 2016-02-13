@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         instantiateList();
         sendSMSMessage("", "9173400996");
+        sendSMSMessage("", "9173400996");
 
     }
 
@@ -65,10 +66,10 @@ public class MainActivity extends Activity {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
-            addToList(phoneNumber + " " + message);
+            addToList("To: " + phoneNumber + "\nStatus: Sent" + "\n" + timestamp);
         } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList(phoneNumber + " " + message);
+            Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail" + "\n" + timestamp);
             e.printStackTrace();
         }
     }
