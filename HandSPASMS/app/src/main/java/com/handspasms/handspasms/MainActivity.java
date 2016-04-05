@@ -1,15 +1,9 @@
 package com.handspasms.handspasms;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.app.Activity;
 import android.telephony.CellInfo;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellLocation;
-import android.telephony.CellSignalStrength;
-import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
-import android.telephony.SignalStrength;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -17,32 +11,36 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
+import java.text.SimpleDateFormat;
 
 public class MainActivity extends Activity {
-    Stack<messageEvent> msgList;
-    static Stack<String> stringLog;
-    static ArrayAdapter<String> adapter;
+    private static final String  TAG  = "MainActivity";
+    private static final Integer PORT = 1889;
+    private static final Integer MSG_MAX = 100;
+    private static Stack<String> stringLog;
+    private static ArrayAdapter<String> adapter;
+    // http://developer.android.com/reference/java/text/SimpleDateFormat.html
+    private static final String TIMESTAMP_FORMAT = "hh:mm:ss a yyyy-MM-dd";
+    private final SimpleDateFormat sdf = new SimpleDateFormat(TIMESTAMP_FORMAT, Locale.US);
+    private SimpleWebServer sws = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instantiateList();
-        SimpleWebServer sws = new SimpleWebServer(1888, null, this);
-        sws.start();
-        sws.run();
-
-        // sendSMSMessage("hello", "9173400996");
-
         ImageView hand = (ImageView) findViewById(R.id.hand);
         hand.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -53,7 +51,19 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+        TextView ipAddress = (TextView) findViewById(R.id.ipAddress);
+        ipAddress.setText("http://" + getIPAddress(true) + ':' + PORT);
+        sws = new SimpleWebServer(PORT, null, this);
+        sws.start();
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(sws != null) {
+            sws.stop();
+            sws = null;
+        }
     }
 
     @Override
@@ -81,12 +91,10 @@ public class MainActivity extends Activity {
     /*
     sendSMSMessage sends String message to String phoneNumber
      */
-    //timestamp added to test it
     public void sendSMSMessage(String message, String phoneNumber) {
 
-        Log.i("Send SMS", "");
-        messageEvent msgEvent = new messageEvent(phoneNumber, message);
-        String timestamp = msgEvent.getTimestamp();
+        Log.i(TAG, "Send SMS");
+        String timestamp = sdf.format(new Date());
         TelephonyManager  tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
         CellInfo cf = tm.getAllCellInfo().get(0);
         //Check for cell reception and sms preparedness
@@ -94,74 +102,71 @@ public class MainActivity extends Activity {
         boolean isSMSCapable = tm.isSmsCapable(); //IE is technically capable of sending a SMS
         boolean isActiveSim = (tm.getSimState() == 5); //IE has an active SIM card
 
-        try {
-            if(!isSMSCapable) {
-                throw new notSMSCapableException();
-            } else if(!isActiveSim) {
-                throw new noSIMCardException();
-            } else if (!isRegistered) {
-                throw new notConnectedToNetworkException();
-            } else if (message.equals("")) {
-                throw new nullMessageException();
-            }
-
-            if(!isSMSCapable | !isActiveSim | !isRegistered) {
-                throw new Exception();
-            }
+        if(!isSMSCapable) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (Not SMS Capable)" + "\nTime:" + timestamp);
+        } else if(!isActiveSim) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (SIM Card Not Active)" + "\nTime:" + timestamp);
+        } else if (!isRegistered) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (No Cellular Network)" + "\nTime:" + timestamp);
+        } else if (message.equals("")) {
+            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
+            addToList("To: " + phoneNumber + "\nStatus: Fail (Null Message)" + "\nTime:" + timestamp);
+        } else {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Toast.makeText(getApplicationContext(), "Message sent", Toast.LENGTH_LONG).show();
             addToList("To: " + phoneNumber + "\nStatus: Sent" + "\n" + timestamp);
-
-        } catch (notSMSCapableException e) {
-
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail (Not SMS Capable)" + "\nTime:" + timestamp);
-            e.printStackTrace();
-
-        } catch (noSIMCardException e) {
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail (SIM Card Not Active)" + "\nTime:" + timestamp);
-            e.printStackTrace();
-
-        } catch (notConnectedToNetworkException e) {
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail (No Cellular Network)" + "\nTime:" + timestamp);
-            e.printStackTrace();
-
-        } catch (nullMessageException e) {
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail (Null Message)" + "\nTime:" + timestamp);
-            e.printStackTrace();
-
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Message fail", Toast.LENGTH_LONG).show();
-            addToList("To: " + phoneNumber + "\nStatus: Fail" + "\nTime:" + timestamp);
-            e.printStackTrace();
         }
     }
 
-    public void instantiateList() {
-        stringLog = new Stack<String>();
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, stringLog);
+    private void instantiateList() {
+        stringLog = new Stack<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, stringLog);
         ListView myList = (ListView) findViewById(R.id.logView);
         myList.setAdapter(adapter);
     }
 
-    public static void addToList(String newThing) {
+    private static void addToList(String newThing) {
+        if(stringLog.size() >= MSG_MAX){
+            stringLog.remove(0);
+        }
         stringLog.push(newThing);
         adapter.notifyDataSetChanged();
     }
 
-    public String getIpAddress() {
+    /**
+     * Get IP address from first non-localhost interface
+     * @param useIPv4  true=return ipv4, false=return ipv6
+     * @return  address or empty string
+     */
+    // http://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device
+    private static String getIPAddress(boolean useIPv4) {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (!addr.isLoopbackAddress()) {
+                        String sAddr = addr.getHostAddress();
+                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+                        boolean isIPv4 = sAddr.indexOf(':')<0;
+
+                        if (useIPv4) {
+                            if (isIPv4)
+                                return sAddr;
+                        } else {
+                            if (!isIPv4) {
+                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) { } // for now eat exceptions
         return "";
     }
-
-
-    /* Google cloud Messaging credentials
-        Server API key: AIzaSyC1pHP-j6JDF8QNS6dFy3CT5Twg2Y8YMlI
-        Sender ID: 1063206121019
-     */
-
-
 }

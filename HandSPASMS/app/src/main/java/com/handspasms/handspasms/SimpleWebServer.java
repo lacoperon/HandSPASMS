@@ -16,21 +16,12 @@
 
 package com.handspasms.handspasms;
 
-import android.content.Context;
 import android.content.res.AssetManager;
-import android.telephony.CellInfo;
-import android.telephony.SmsManager;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
-
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -110,7 +101,7 @@ public class SimpleWebServer implements Runnable {
         } catch (SocketException e) {
             // The server was stopped; ignore.
         } catch (IOException e) {
-            Log.e(TAG, "Web server error.", e);
+            Log.e(TAG, "Web server error", e);
         }
     }
 
@@ -124,44 +115,77 @@ public class SimpleWebServer implements Runnable {
         BufferedReader reader = null;
         PrintStream output = null;
         try {
-            String route = null;
-
-            String full_line = "";
-
             // Read HTTP headers and parse out the route.
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            // Output stream that we send the response to
+            output = new PrintStream(socket.getOutputStream());
             String line;
             while (!TextUtils.isEmpty(line = reader.readLine())) {
                 if (line.startsWith("GET /")) {
-                    full_line = full_line + line;
+                    int pos = 0;
+                    int tempPos;
+                    String phone_number = "";
+                    String message = "";
 
-                    // Back to regular spaces
-                    line = line.replace("%20", " ");
+                    // Extract the parameters
+                    while(  ((tempPos = line.indexOf("?", pos)) != -1)
+                         || ((tempPos = line.indexOf("&", pos)) != -1)){
+                        pos = tempPos;
+                        int paramEndPos = line.indexOf("=", pos);
+                        int nextAmpPos  = line.indexOf("&", paramEndPos);
+                        if(paramEndPos == -1) {
+                            Log.e(TAG, "Error! Malformed GET request");
+                            writeServerError(output);
+                            return;
+                        }
 
-                    // Phone number starts 1 after the first equals sign
-                    int phone_number_start = line.indexOf("=") + 1;
-                    // Phone number ends at the first ampersand
-                    int phone_number_end = line.indexOf("&") - 1;
-                    // Message starts 1 after the second equal sign
-                    int message_start_idx = line.indexOf("=", phone_number_end) + 1;
+                        String param = line.substring(pos+1, paramEndPos);
+                        String value;
+                        if(nextAmpPos != -1){
+                            value = line.substring(paramEndPos+1, nextAmpPos);
+                            pos   = nextAmpPos;
+                        } else {
+                            int nextSpacePos = line.indexOf(" ", paramEndPos);
+                            pos   = nextSpacePos;
+                            if (nextSpacePos != -1) {
+                                value = line.substring(paramEndPos+1, nextSpacePos);
+                            } else {
+                                Log.e(TAG, "Error! Bad GET request");
+                                writeServerError(output);
+                                return;
+                            }
+                        }
 
-                    // Extract fields from line
-                    String phone_number = line.substring(phone_number_start, phone_number_end);
-                    String message = line.substring(message_start_idx);
+                        switch(param){
+                            case "number":  phone_number = value; break;
+                            case "message": message = value.replace("%20", " "); break;
+                            default:
+                                Log.e(TAG, "Error! Unknown parameter" + param);
+                                writeServerError(output);
+                                return;
+                        }
+                    }
+                    if(phone_number.equals("") || message.equals("")) {
+                        Log.e(TAG, "Error! Missing parameters");
+                        writeServerError(output);
+                        return;
+                    }
 
-                    cl.sendSMSMessage(message, phone_number);
-                    // break;
+                    // Send the message (from the UI thread)
+                    final String finalMessage      = message;
+                    final String finalPhone_number = phone_number;
+                    cl.runOnUiThread(new Runnable() {
+                        public void run() {
+                            cl.sendSMSMessage(finalMessage, finalPhone_number);
+                        }
+                    });
+                    break;
                 }
             }
 
-            Log.i("HTTP REQUEST: ", full_line);
-
-            // Output stream that we send the response to
-            output = new PrintStream(socket.getOutputStream());
-
             // Send out the content.
             output.println("HTTP/1.0 200 OK");
-            output.println("Content-Type: " + detectMimeType(route));
+            output.println("Content-Type: text/html");
             output.println();
             output.flush();
         } finally {
@@ -183,53 +207,4 @@ public class SimpleWebServer implements Runnable {
         output.println("HTTP/1.0 500 Internal Server Error");
         output.flush();
     }
-
-    /**
-     * Loads all the content of {@code fileName}.
-     *
-     * @param fileName The name of the file.
-     * @return The content of the file.
-     * @throws IOException
-     */
-    private byte[] loadContent(String fileName) throws IOException {
-        InputStream input = null;
-        try {
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            input = mAssets.open(fileName);
-            byte[] buffer = new byte[1024];
-            int size;
-            while (-1 != (size = input.read(buffer))) {
-                output.write(buffer, 0, size);
-            }
-            output.flush();
-            return output.toByteArray();
-        } catch (FileNotFoundException e) {
-            return null;
-        } finally {
-            if (null != input) {
-                input.close();
-            }
-        }
-    }
-
-    /**
-     * Detects the MIME type from the {@code fileName}.
-     *
-     * @param fileName The name of the file.
-     * @return A MIME type.
-     */
-    private String detectMimeType(String fileName) {
-        if (TextUtils.isEmpty(fileName)) {
-            return null;
-        } else if (fileName.endsWith(".html")) {
-            return "text/html";
-        } else if (fileName.endsWith(".js")) {
-            return "application/javascript";
-        } else if (fileName.endsWith(".css")) {
-            return "text/css";
-        } else {
-            return "application/octet-stream";
-        }
-    }
-
 }
